@@ -1,0 +1,97 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ email.subject }}{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-10 offset-md-1">
+        <!-- Навигация -->
+        <div class="d-flex justify-content-between mb-3">
+            <div>
+                {% if prev_email %}
+                <a href="{% url 'mail:view_email' prev_email.id %}" class="btn btn-outline-primary">← Предыдущее</a>
+                {% endif %}
+            </div>
+            <div>
+                <a href="{% url 'mail:inbox' %}" class="btn btn-outline-secondary">📋 К списку</a>
+                <a href="{% url 'mail:compose' %}?reply_to={{ email.id }}" class="btn btn-outline-success">↩ Ответить</a>
+            </div>
+            <div>
+                {% if next_email %}
+                <a href="{% url 'mail:view_email' next_email.id %}" class="btn btn-outline-primary">Следующее →</a>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Письмо -->
+        <div class="card">
+            <div class="card-header bg-white">
+                <h3 class="mb-3">{{ email.subject }}</h3>
+                <div class="row">
+                    <div class="col-md-6">
+                        <p class="mb-1"><strong>От:</strong> {{ email.sender.username }}</p>
+                        <p class="mb-1"><strong>Кому:</strong> {{ email.recipient.username }}</p>
+                    </div>
+                    <div class="col-md-6 text-md-end">
+                        <p class="mb-1 text-muted">
+                            <strong>Дата:</strong> {{ email.created_at|date:"d.m.Y H:i:s" }}
+                        </p>
+                        <p class="mb-1">
+                            <strong>Папка:</strong> 
+                            <span class="badge bg-info">{{ email.get_folder_display }}</span>
+                            {% if email.is_read %}
+                                <span class="badge bg-secondary">Прочитано</span>
+                            {% else %}
+                                <span class="badge bg-success">Новое</span>
+                            {% endif %}
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="p-4 bg-light rounded" style="white-space: pre-wrap; min-height: 200px;">
+                    {{ email.body }}
+                </div>
+            </div>
+            <div class="card-footer bg-white">
+                <!-- Кнопки действий -->
+                <form method="post" action="{% url 'mail:move_emails' %}" class="d-inline">
+                    {% csrf_token %}
+                    <input type="hidden" name="email_ids" value="{{ email.id }}">
+                    <input type="hidden" name="next" value="{{ request.path }}">
+                    
+                    {% if email.folder != 'archive' %}
+                    <button type="submit" name="folder" value="archive" class="btn btn-warning btn-sm">
+                        📦 В архив
+                    </button>
+                    {% endif %}
+                    
+                    {% if email.folder != 'trash' %}
+                    <button type="submit" name="folder" value="trash" class="btn btn-danger btn-sm" formaction="{% url 'mail:delete_emails' %}">
+                        🗑 В корзину
+                    </button>
+                    {% endif %}
+                </form>
+
+                {% if email.folder == 'trash' %}
+                <form method="post" action="{% url 'mail:permanent_delete' %}" class="d-inline">
+                    {% csrf_token %}
+                    <input type="hidden" name="email_ids" value="{{ email.id }}">
+                    <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Вы уверены? Это действие нельзя отменить.')">
+                        ⚠ Удалить навсегда
+                    </button>
+                </form>
+                <form method="post" action="{% url 'mail:move_emails' %}" class="d-inline">
+                    {% csrf_token %}
+                    <input type="hidden" name="email_ids" value="{{ email.id }}">
+                    <input type="hidden" name="folder" value="inbox">
+                    <button type="submit" class="btn btn-success btn-sm">
+                        ↩ Восстановить
+                    </button>
+                </form>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

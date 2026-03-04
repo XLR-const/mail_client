@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+
+{% block title %}Архив{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <h2 class="mb-3">📦 Архив</h2>
+
+        <div class="list-group">
+            {% for email in page_obj %}
+            <div class="list-group-item">
+                <div class="row">
+                    <div class="col-2">
+                        {% if email.sender == user %}
+                            <strong>Кому:</strong> {{ email.recipient.username }}
+                        {% else %}
+                            <strong>От:</strong> {{ email.sender.username }}
+                        {% endif %}
+                    </div>
+                    <div class="col-7">
+                        <a href="{% url 'mail:view_email' email.id %}" class="text-decoration-none text-dark">
+                            {{ email.subject }}
+                            <small class="text-muted ms-2">{{ email.body|truncatechars:50 }}</small>
+                        </a>
+                    </div>
+                    <div class="col-3 text-end">
+                        <small class="text-muted">{{ email.created_at|date:"d.m.Y H:i" }}</small>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <div class="alert alert-info">
+                📭 В архиве нет писем
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}

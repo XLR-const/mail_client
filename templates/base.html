@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Email клиент{% endblock %}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .unread {
+            font-weight: bold;
+            background-color: #f8f9fa;
+        }
+        .email-row:hover {
+            background-color: #e9ecef;
+            cursor: pointer;
+        }
+        .btn-link-nav {
+            display: inline;
+            padding: 0;
+            border: none;
+            background: none;
+            color: rgba(255,255,255,.55);
+            text-decoration: none;
+        }
+        .btn-link-nav:hover {
+            color: rgba(255,255,255,.75);
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand" href="{% url 'mail:inbox' %}">📧 Email клиент</a>
+            
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            
+            <div class="collapse navbar-collapse" id="navbarNav">
+                {% if user.is_authenticated %}
+                    <ul class="navbar-nav me-auto">
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'mail:inbox' %}">Входящие</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'mail:sent' %}">Отправленные</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'mail:archive' %}">Архив</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'mail:trash' %}">Корзина</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'mail:compose' %}">➕ Новое письмо</a>
+                        </li>
+                    </ul>
+                    
+                    <ul class="navbar-nav">
+                        <li class="nav-item">
+                            <span class="navbar-text me-3">
+                                👤 {{ user.username }}
+                            </span>
+                        </li>
+                        <li class="nav-item">
+                            <form method="post" action="{% url 'logout' %}" class="d-inline">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-link-nav nav-link">
+                                    Выйти
+                                </button>
+                            </form>
+                        </li>
+                    </ul>
+                {% else %}
+                    <ul class="navbar-nav ms-auto">
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'login' %}">Вход</a>
+                        </li>
+                        <!-- ВСЁ! Здесь нет ссылки на регистрацию -->
+                    </ul>
+                {% endif %}
+            </div>
+        </div>
+    </nav>
+
+    <main class="container mt-4">
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }} alert-dismissible fade show">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            {% endfor %}
+        {% endif %}
+
+        {% block content %}
+        {% endblock %}
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    
+    {% block scripts %}
+    {% endblock %}
+</body>
+</html>

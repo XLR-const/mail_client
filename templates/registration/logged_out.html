@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+
+{% block title %}Выход{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-6 offset-md-3">
+        <div class="card">
+            <div class="card-header bg-success text-white">
+                <h4 class="mb-0">👋 Выход выполнен</h4>
+            </div>
+            <div class="card-body text-center">
+                <p class="lead">Вы успешно вышли из системы.</p>
+                <p>Спасибо, что использовали наш Email клиент!</p>
+                <a href="{% url 'login' %}" class="btn btn-primary">🔐 Войти снова</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+
+{% block title %}Корзина{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <h2 class="mb-3">🗑 Корзина</h2>
+
+        <form method="post" action="{% url 'mail:permanent_delete' %}">
+            {% csrf_token %}
+            
+            <div class="mb-2">
+                <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Удалить выбранные письма навсегда?')">
+                    ⚠ Удалить навсегда
+                </button>
+                <span class="ms-2 text-muted">Письма хранятся в корзине 30 дней</span>
+            </div>
+
+            <div class="list-group">
+                {% for email in page_obj %}
+                <div class="list-group-item">
+                    <div class="row">
+                        <div class="col-1">
+                            <input type="checkbox" name="email_ids" value="{{ email.id }}" class="form-check-input">
+                        </div>
+                        <div class="col-2">
+                            {% if email.sender == user %}
+                                <strong>Кому:</strong> {{ email.recipient.username }}
+                            {% else %}
+                                <strong>От:</strong> {{ email.sender.username }}
+                            {% endif %}
+                        </div>
+                        <div class="col-6">
+                            <a href="{% url 'mail:view_email' email.id %}" class="text-decoration-none text-dark">
+                                {{ email.subject }}
+                                <small class="text-muted ms-2">{{ email.body|truncatechars:50 }}</small>
+                            </a>
+                        </div>
+                        <div class="col-3 text-end">
+                            <small class="text-muted">{{ email.created_at|date:"d.m.Y H:i" }}</small>
+                        </div>
+                    </div>
+                </div>
+                {% empty %}
+                <div class="alert alert-info">
+                                    🗑 Корзина пуста
+                </div>
+                {% endfor %}
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
